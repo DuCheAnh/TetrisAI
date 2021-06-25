@@ -41,7 +41,8 @@
 
 from random import randrange as rand
 import pygame, sys
-
+import model
+from IPython.display import clear_output
 # The configuration
 cell_size = 18
 cols = 10
@@ -108,7 +109,7 @@ def check_collision(board, shape, offset):
 
 def remove_row(board, row):
     del board[row]
-    return [[0 for i in range(cols)]] + board
+    return [[0 for _ in range(cols)]] + board
 
 
 def join_matrixes(mat1, mat2, mat2_off):
@@ -120,9 +121,9 @@ def join_matrixes(mat1, mat2, mat2_off):
 
 
 def new_board():
-    board = [[0 for x in range(cols)]
-             for y in range(rows)]
-    board += [[1 for x in range(cols)]]
+    board = [[0 for _ in range(cols)]
+             for _ in range(rows)]
+    board += [[1 for _ in range(cols)]]
     return board
 
 
@@ -246,7 +247,15 @@ class TetrisApp(object):
                     (self.stone_x, self.stone_y))
                 self.new_stone()
                 cleared_rows = 0
+                count=0
                 while True:
+                    for j in range(cols):
+                        print(model.col_height(self.board, rows, j), end=" - ")
+                    print(f"\naggregate height= {model.aggregate_height(self.board,rows,cols)}")
+                    for j in range(cols):
+                        print(model.holes(self.board,rows,j),end=" | ")
+                    print(f"\n bumpiness = {model.bumpiness(self.board,rows,cols)}")
+                    print(f"line cleared = {model.line_cleared(self.board, rows)}")
                     for i, row in enumerate(self.board[:-1]):
                         if 0 not in row:
                             self.board = remove_row(
@@ -261,7 +270,7 @@ class TetrisApp(object):
 
     def insta_drop(self):
         if not self.gameover and not self.paused:
-            while (not self.drop(True)):
+            while not self.drop(True):
                 pass
 
     def rotate_stone(self):
@@ -330,8 +339,7 @@ Press space to continue""")
                     self.quit()
                 elif event.type == pygame.KEYDOWN:
                     for key in key_actions:
-                        if event.key == eval("pygame.K_"
-                                             + key):
+                        if event.key == eval("pygame.K_"+ key):
                             key_actions[key]()
 
             dont_burn_my_cpu.tick(maxfps)
