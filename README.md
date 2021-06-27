@@ -1,14 +1,24 @@
-# Project Name
+# Tetris Ai with Python
 
-TODO: Write a project description
+An AI implementation to play Tetris
+
+## Tools used
+
+    IDE: Pycharm Community - 2021 1.2
+    Language: Python 3.9
 
 ## Installation
 
-TODO: Describe the installation process
+You will need the following packages installed to get this project running:
+* pygame 
+* numpy
 
+
+    pip install pygame
+    pip install numpy
 ## Usage
 
-TODO: Write usage instructions
+* Tetris game is located 
 
 ## Contributing
 

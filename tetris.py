@@ -84,12 +84,13 @@ def new_board():
     return board
 
 class TetrisApp(object):
-    def __init__(self, playWithUI):
+    def __init__(self, playWithUI,seed):
         self.width = cell_size*(cols+6)
         self.height = cell_size*rows
         self.rlim = cell_size*cols
         self.nbPiece = 0
-        # random.seed(1)
+        if seed>=0:
+            random.seed(seed)
         self.next_stone = tetris_shapes[random.randint(0, len(tetris_shapes)-1)]
         self.playWithUI = playWithUI
         self.fast_mode = True
@@ -250,5 +251,8 @@ class TetrisApp(object):
 
 if __name__ == '__main__':
     weights=[-0.510066,0.76606,-0.35663,-0.184483]
-    result = TetrisApp(True).run(weights, -1)
+    seed=1
+    piece_limit=200
+    # weights=[-0.73796594,  1.71730086, -2.15707346, -0.89728016]
+    result = TetrisApp(True,seed).run(weights, piece_limit)
     print(result)
