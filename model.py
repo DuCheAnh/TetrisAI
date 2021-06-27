@@ -1,55 +1,125 @@
-from IPython.display import clear_output
+import copy
 
-#TODO: create 4 weight funcs\
-def col_height(board,rows,target_col):
-    started = False
-    result=0
-    for i in range(rows):
-        if board[i][target_col] != 0:
-            started = True
-        if started:
-            result+=1
-    return result
+class Field:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.field = [[0]*self.width]*self.height
 
-def aggregate_height(board,rows,cols):
-    result=0
-    for col in range(cols):
-        result+=col_height(board,rows,col)
-    return result
+    def size(self):
+        return self.width, self.height
 
-def holes(board,rows,target_col):
-    result = 0
-    started=False
-    for row in range(rows):
-        if (board[row][target_col]!=0):
-            started=True
-        if started and board[row][target_col]==0:
-            result+=1
-    return result
+    def updateField(self, field):
+        self.field = field
 
-def line_cleared(board,rows):
-    result=0
-    for row in range(rows):
-        if 0 not in board[row]:
-            result+=1
-    return result
-
-def bumpiness(board,rows,cols):
-    result=0
-    for col in range(cols-1):
-        this_height=col_height(board,rows,col)
-        next_height=col_height(board,rows,col+1)
-        result+=abs(this_height-next_height)
-    return result
-
-@staticmethod
-def check_collision(field, shape, offset):
-    off_x, off_y = offset
-    for cy, row in enumerate(shape):
-        for cx, cell in enumerate(row):
-            try:
-                if cell and field[cy + off_y][cx + off_x]:
+    @staticmethod
+    def check_collision(field, shape, offset):
+        off_x, off_y = offset
+        for cy, row in enumerate(shape):
+            for cx, cell in enumerate(row):
+                try:
+                    if cell and field[ cy + off_y ][ cx + off_x ]:
+                        return True
+                except IndexError:
                     return True
-            except IndexError:
-                return True
-    return False
+        return False
+
+    def projectPieceDown(self, piece, offsetX, workingPieceIndex):
+        if offsetX+len(piece[0]) > self.width or offsetX < 0:
+            return None
+        offsetY = self.height
+        for y in range(0, self.height):
+            if Field.check_collision(self.field, piece, (offsetX, y)):
+                offsetY = y
+                break
+        for x in range(0, len(piece[0])):
+            for y in range(0, len(piece)):
+                value = piece[y][x]
+                if value > 0:
+                    self.field[offsetY-1+y][offsetX+x] = -workingPieceIndex
+        return self
+
+    def undo(self, workingPieceIndex):
+        self.field = [[0 if el == -workingPieceIndex else el for el in row] for row in self.field]
+
+    def heightForColumn(self, column):
+        width, height = self.size()
+        for i in range(0, height):
+            if self.field[i][column] != 0:
+                return height-i
+        return 0
+
+    def heights(self):
+        result = []
+        width, height = self.size()
+        for i in range(0, width):
+            result.append(self.heightForColumn(i))
+        return result
+
+    def heuristics(self):
+        heights=self.heights()
+        list = []
+        list.append(self.aggregateHeight(heights))
+        list.append(self.completedLine())
+        list.append(self.numberOfHoles(heights))
+        list.append(self.bumpinesses(heights))
+        return list
+    def aggregateHeight(self, heights):
+        result = sum(heights)
+        return result
+
+    def completedLine(self):
+        result = 0
+        width, height = self.size()
+        for i in range (0, height) :
+            if 0 not in self.field[i]:
+                result+=1
+        return result
+
+    def bumpinesses(self, heights):
+        result = 0
+        for i in range(0, len(heights)-1):
+            result += abs(heights[i]-heights[i+1])
+        return result
+
+    def numberOfHoles(self, heights):
+        total = 0
+        width, height = self.size()
+        for j in range(0, width) :
+            result = 0
+            for i in range (0, height) :
+                if self.field[i][j] == 0 and height-i < heights[j]:
+                    result+=1
+            total+=result
+        return total
+
+    def maxHeightColumns(self, heights):
+        return max(heights)
+
+    def minHeightColumns(self, heights):
+        return min(heights)
+
+    def maximumHoleHeight(self, heights):
+        if self.numberOfHole(heights) == 0:
+            return 0
+        else:
+            maxHeight = 0
+            for height, line in enumerate(reversed(self.field)):
+                if sum(line) == 0: break
+                if self.numberOfHoleInRow(height) > 0:
+                    maxHeight = height
+            return maxHeight
+
+    def rowsWithHoles(self, maxColumn):
+        result = 0
+        for line in range(0, maxColumn):
+            if self.numberOfHoleInRow(line) > 0:
+                result += 1
+        return result
+
+    def maxPitDepth(self, heights):
+        return max(heights)-min(heights)
+
+
+
+
