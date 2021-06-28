@@ -96,7 +96,7 @@ class TetrisApp(object):
         self.fast_mode = True
         if playWithUI:
             self.gui = Gui()
-            self.fast_mode = False
+            self.fast_mode = True
         self.init_game()
 
     def new_stone(self):
@@ -223,12 +223,13 @@ class TetrisApp(object):
 
             if self.nbPiece >= limitPiece and limitPiece > 0:
                 self.gameover = True
+                # return self.score
 
             if self.playWithUI:
                 self.gui.update(self)
 
             if self.gameover:
-                return self.lines*1000 + self.nbPiece
+                return self.score
 
             if not self.computed:
                 self.computed = True
@@ -250,9 +251,9 @@ class TetrisApp(object):
 
 
 if __name__ == '__main__':
-    weights=[-0.510066,0.76606,-0.35663,-0.184483]
-    seed=1
-    piece_limit=200
-    # weights=[-0.73796594,  1.71730086, -2.15707346, -0.89728016]
-    result = TetrisApp(True,seed).run(weights, piece_limit)
+    # weights=[-0.510066,0.76606,-0.35663,-0.184483]
+    seed=-2
+    piece_limit=100
+    weights=[-1.23962156, -1.19593245, -1.23643526, -1.21559287]
+    result = TetrisApp(False,seed).run(weights, piece_limit)
     print(result)

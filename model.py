@@ -1,5 +1,3 @@
-import copy
-
 class Field:
     def __init__(self, width, height):
         self.width = width
@@ -56,6 +54,7 @@ class Field:
             result.append(self.heightForColumn(i))
         return result
 
+
     def heuristics(self):
         heights=self.heights()
         list = []
@@ -64,6 +63,7 @@ class Field:
         list.append(self.numberOfHoles(heights))
         list.append(self.bumpinesses(heights))
         return list
+
     def aggregateHeight(self, heights):
         result = sum(heights)
         return result
@@ -93,32 +93,7 @@ class Field:
             total+=result
         return total
 
-    def maxHeightColumns(self, heights):
-        return max(heights)
 
-    def minHeightColumns(self, heights):
-        return min(heights)
-
-    def maximumHoleHeight(self, heights):
-        if self.numberOfHole(heights) == 0:
-            return 0
-        else:
-            maxHeight = 0
-            for height, line in enumerate(reversed(self.field)):
-                if sum(line) == 0: break
-                if self.numberOfHoleInRow(height) > 0:
-                    maxHeight = height
-            return maxHeight
-
-    def rowsWithHoles(self, maxColumn):
-        result = 0
-        for line in range(0, maxColumn):
-            if self.numberOfHoleInRow(line) > 0:
-                result += 1
-        return result
-
-    def maxPitDepth(self, heights):
-        return max(heights)-min(heights)
 
 
 
