@@ -9,22 +9,22 @@ import pygame, sys
 from gui import Gui
 
 # The configuration
-cell_size =    18
-cols =        10
-rows =        22
-maxfps =     30
+cell_size = 18
+cols = 10
+rows = 22
+maxfps = 30
 maxPiece = 500
 
 colors = [
-(0,   0,   0  ),
-(255, 85,  85),
-(100, 200, 115),
-(120, 108, 245),
-(255, 140, 50 ),
-(50,  120, 52 ),
-(146, 202, 73 ),
-(150, 161, 218 ),
-(35,  35,  35) # Helper color for background grid
+    (0, 0, 0),
+    (255, 85, 85),
+    (100, 200, 115),
+    (120, 108, 245),
+    (255, 140, 50),
+    (50, 120, 52),
+    (146, 202, 73),
+    (150, 161, 218),
+    (35, 35, 35)  # Helper color for background grid
 ]
 
 # Define the shapes of the single parts
@@ -50,48 +50,54 @@ tetris_shapes = [
      [7, 7]]
 ]
 
+
 def rotate_clockwise(shape):
-    return [ [ shape[y][x]
-            for y in range(len(shape)) ]
-        for x in range(len(shape[0]) - 1, -1, -1) ]
+    return [[shape[y][x]
+             for y in range(len(shape))]
+            for x in range(len(shape[0]) - 1, -1, -1)]
+
 
 def check_collision(board, shape, offset):
     off_x, off_y = offset
     for cy, row in enumerate(shape):
         for cx, cell in enumerate(row):
             try:
-                if cell and board[ cy + off_y ][ cx + off_x ]:
+                if cell and board[cy + off_y][cx + off_x]:
                     return True
             except IndexError:
                 return True
     return False
 
+
 def remove_row(board, row):
     del board[row]
     return [[0 for i in range(cols)]] + board
+
 
 def join_matrixes(mat1, mat2, mat2_off):
     off_x, off_y = mat2_off
     for cy, row in enumerate(mat2):
         for cx, val in enumerate(row):
-            mat1[cy+off_y-1    ][cx+off_x] += val
+            mat1[cy + off_y - 1][cx + off_x] += val
     return mat1
 
+
 def new_board():
-    board = [ [ 0 for x in range(cols) ]
-            for y in range(rows) ]
-    #board += [[ 1 for x in xrange(cols)]]
+    board = [[0 for x in range(cols)]
+             for y in range(rows)]
+    # board += [[ 1 for x in xrange(cols)]]
     return board
 
+
 class TetrisApp(object):
-    def __init__(self, playWithUI,seed):
-        self.width = cell_size*(cols+6)
-        self.height = cell_size*rows
-        self.rlim = cell_size*cols
+    def __init__(self, playWithUI, seed):
+        self.width = cell_size * (cols + 6)
+        self.height = cell_size * rows
+        self.rlim = cell_size * cols
         self.nbPiece = 0
-        if seed>=0:
+        if seed >= 0:
             random.seed(seed)
-        self.next_stone = tetris_shapes[random.randint(0, len(tetris_shapes)-1)]
+        self.next_stone = tetris_shapes[random.randint(0, len(tetris_shapes) - 1)]
         self.playWithUI = playWithUI
         self.fast_mode = True
         if playWithUI:
@@ -101,8 +107,8 @@ class TetrisApp(object):
 
     def new_stone(self):
         self.stone = self.next_stone[:]
-        self.next_stone = tetris_shapes[random.randint(0, len(tetris_shapes)-1)]
-        self.stone_x = int(cols / 2 - len(self.stone[0])/2)
+        self.next_stone = tetris_shapes[random.randint(0, len(tetris_shapes) - 1)]
+        self.stone_x = int(cols / 2 - len(self.stone[0]) / 2)
         self.stone_y = 0
         self.nbPiece += 1
         self.computed = False
@@ -122,8 +128,8 @@ class TetrisApp(object):
     def add_cl_lines(self, n):
         linescores = [0, 40, 100, 300, 1200]
         self.lines += n
-        self.score += linescores[n%5] * self.level
-        if self.lines >= self.level*6:
+        self.score += linescores[n % 5] * self.level
+        if self.lines >= self.level * 6:
             self.level += 1
 
     def move(self, delta_x):
@@ -146,16 +152,16 @@ class TetrisApp(object):
                                self.stone,
                                (self.stone_x, self.stone_y)):
                 self.board = join_matrixes(
-                  self.board,
-                  self.stone,
-                  (self.stone_x, self.stone_y))
+                    self.board,
+                    self.stone,
+                    (self.stone_x, self.stone_y))
                 self.new_stone()
                 cleared_rows = 0
 
                 for i, row in enumerate(self.board):
                     if 0 not in row:
                         self.board = remove_row(
-                          self.board, i)
+                            self.board, i)
                         cleared_rows += 1
                 self.add_cl_lines(cleared_rows)
                 return True
@@ -163,7 +169,7 @@ class TetrisApp(object):
 
     def insta_drop(self):
         if not self.gameover and not self.paused:
-            while(not self.drop(True)):
+            while (not self.drop(True)):
                 pass
 
     def rotate_stone(self):
@@ -191,28 +197,27 @@ class TetrisApp(object):
     def speed_up(self):
         self.fast_mode = not self.fast_mode
         if self.fast_mode:
-            pygame.time.set_timer(pygame.USEREVENT+1, 2000)
+            pygame.time.set_timer(pygame.USEREVENT + 1, 2000)
             self.insta_drop()
         else:
-            pygame.time.set_timer(pygame.USEREVENT+1, 25)
+            pygame.time.set_timer(pygame.USEREVENT + 1, 25)
 
     def executes_moves(self, moves):
         key_actions = {
-            'ESCAPE':    self.quit,
-            'LEFT':        lambda:self.move(-1),
-            'RIGHT':    lambda:self.move(+1),
-            'DOWN':        lambda:self.drop(True),
-            'UP':        self.rotate_stone,
-            'p':        self.toggle_pause,
-            'SPACE':    self.start_game,
-            'RETURN':    self.insta_drop
+            'ESCAPE': self.quit,
+            'LEFT': lambda: self.move(-1),
+            'RIGHT': lambda: self.move(+1),
+            'DOWN': lambda: self.drop(True),
+            'UP': self.rotate_stone,
+            'p': self.toggle_pause,
+            'SPACE': self.start_game,
+            'RETURN': self.insta_drop
         }
         for action in moves:
             key_actions[action]()
 
         if self.fast_mode:
             self.insta_drop()
-
 
     def run(self, weights, limitPiece):
         self.gameover = False
@@ -238,10 +243,10 @@ class TetrisApp(object):
 
             if self.playWithUI:
                 for event in pygame.event.get():
-                    if event.type == pygame.USEREVENT+1:
+                    if event.type == pygame.USEREVENT + 1:
                         self.drop(False)
                     elif event.type == pygame.QUIT:
-                            self.quit()
+                        self.quit()
                     elif event.type == pygame.KEYDOWN:
                         if event.key == eval("pygame.K_s"):
                             self.speed_up()
@@ -252,8 +257,8 @@ class TetrisApp(object):
 
 
 if __name__ == '__main__':
-    seed=-1
-    piece_limit=-1
-    weights=[-0.74527646,  0.69234365, -0.58460981, -0.28681621]
-    result = TetrisApp(True,seed).run(weights, piece_limit)
+    seed = -1
+    piece_limit = -1
+    weights = [-0.74527646, 0.69234365, -0.58460981, -0.28681621]
+    result = TetrisApp(False, seed).run(weights, piece_limit)
     print(result)
