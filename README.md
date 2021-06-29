@@ -17,6 +17,7 @@ You will need the following packages installed to get this project running:
 * numpy
   
       pip install pygame
+  
       pip install numpy
 
 ## Usage
