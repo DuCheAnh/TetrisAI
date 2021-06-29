@@ -15,10 +15,9 @@ You may need basic knowledge about genetic algorithm to get this up and running 
 You will need the following packages installed to get this project running:
 * pygame 
 * numpy
-
-
-    pip install pygame
-    pip install numpy
+  
+      pip install pygame
+      pip install numpy
 
 ## Usage
 ### Training:
