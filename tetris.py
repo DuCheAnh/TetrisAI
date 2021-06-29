@@ -122,7 +122,7 @@ class TetrisApp(object):
     def add_cl_lines(self, n):
         linescores = [0, 40, 100, 300, 1200]
         self.lines += n
-        self.score += linescores[n] * self.level
+        self.score += linescores[n%5] * self.level
         if self.lines >= self.level*6:
             self.level += 1
 
@@ -218,7 +218,7 @@ class TetrisApp(object):
         self.gameover = False
         self.paused = False
 
-        #dont_burn_my_cpu = pygame.time.Clock()
+        dont_burn_my_cpu = pygame.time.Clock()
         while 1:
 
             if self.nbPiece >= limitPiece and limitPiece > 0:
@@ -229,6 +229,7 @@ class TetrisApp(object):
                 self.gui.update(self)
 
             if self.gameover:
+                # return self.lines * 1000 + self.nbPiece
                 return self.score
 
             if not self.computed:
@@ -247,13 +248,13 @@ class TetrisApp(object):
                         elif event.key == eval("pygame.K_p"):
                             self.toggle_pause()
 
-            #dont_burn_my_cpu.tick(maxfps)
+            dont_burn_my_cpu.tick(60)
 
 
 if __name__ == '__main__':
-    # weights=[-0.510066,0.76606,-0.35663,-0.184483]
-    seed=-2
-    piece_limit=100
-    weights=[-1.23962156, -1.19593245, -1.23643526, -1.21559287]
-    result = TetrisApp(False,seed).run(weights, piece_limit)
+    weights=[-0.510066,0.76606,-0.35663,-0.184483]
+    seed=-1
+    piece_limit=-1
+    weights=[-0.74527646,  0.69234365, -0.58460981, -0.28681621]
+    result = TetrisApp(True,seed).run(weights, piece_limit)
     print(result)

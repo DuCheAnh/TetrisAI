@@ -4,12 +4,12 @@ import genetic_alg as ga
 f = open("record.txt", "w")
 
 num_weights = 4
-sol_per_pop = 10
-num_generations = 10
+sol_per_pop = 5
+num_generations = 5
 num_parents_mating = 2
-pieceLimit=500
+pieceLimit=300
 # seeds: if seed<0: random else random.seed = seed
-seed=-1
+seed=1
 
 pop_size = (sol_per_pop,num_weights)
 new_population = numpy.random.uniform(low=-1.0, high=1.0, size=pop_size)
@@ -30,8 +30,9 @@ for generation in range(num_generations):
     fitness = ga.cal_pop_fitness(new_population, pieceLimit, seed)
     print(fitness)
     f.write(f"{fitness}\n")
-
-
+    best_match_idx = numpy.where(fitness == numpy.max(fitness))[0][0]
+    print(f"current best {new_population[best_match_idx, :]}")
+    f.write(f"current best {new_population[best_match_idx, :]}\n")
 
 best_match_idx = numpy.where(fitness == numpy.max(fitness))[0][0]
 print(f"new pop : {new_population}")
