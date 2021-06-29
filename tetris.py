@@ -252,7 +252,6 @@ class TetrisApp(object):
 
 
 if __name__ == '__main__':
-    weights=[-0.510066,0.76606,-0.35663,-0.184483]
     seed=-1
     piece_limit=-1
     weights=[-0.74527646,  0.69234365, -0.58460981, -0.28681621]
